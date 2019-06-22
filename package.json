@@ -1,0 +1,23 @@
+{
+  "name": "@blockware/sdk-rest-client",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockwarecom/sdk-nodejs-rest-client.git"
+  },
+  "keywords": [
+    "blockware"
+  ],
+  "author": "Henrik Hofmeister <hh@blockware.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blockwarecom/sdk-nodejs-rest-client/issues"
+  },
+  "homepage": "https://github.com/blockwarecom/sdk-nodejs-rest-client#readme",
+  "dependencies": {
+    "@blockware/sdk-config": "0.0.1",
+    "request": "2.88.0"
+  }
+}
