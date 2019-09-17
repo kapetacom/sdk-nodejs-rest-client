@@ -8,12 +8,12 @@ class RestClient {
     /**
      * Initialise rest client for service.
      *
-     * @param {string} serviceName
+     * @param {string} resourceName
      */
-    constructor(serviceName) {
-        this._serviceName = serviceName;
+    constructor(resourceName) {
+        this._resourceName = resourceName;
         this._ready = false;
-        this._baseUrl = "http://" + serviceName.toLowerCase();
+        this._baseUrl = "http://" + resourceName.toLowerCase();
 
         Config.onReady(async (provider) => {
             await this.init(provider);
@@ -27,14 +27,14 @@ class RestClient {
      * @return {Promise<void>}
      */
     async init(provider) {
-        this._baseUrl = await provider.getServiceAddress(this._serviceName, SERVICE_TYPE);
+        this._baseUrl = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
         this._ready = true;
 
         if (!this._baseUrl.endsWith('/')) {
             this._baseUrl += '/';
         }
 
-        console.log('REST client ready for %s --> %s', this._serviceName, this._baseUrl);
+        console.log('REST client ready for %s --> %s', this._resourceName, this._baseUrl);
     }
 
     /**
@@ -87,6 +87,15 @@ class RestClient {
             Request(opts, function(err, response, body) {
                 if (err) {
                     reject(err);
+                    return;
+                }
+
+                if (response.statusCode > 399 &&
+                    response.statusCode !== 404) {
+                    reject({
+                        response,
+                        body
+                    });
                     return;
                 }
 
