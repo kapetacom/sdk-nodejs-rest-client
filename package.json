@@ -21,10 +21,10 @@
     "request": "2.88.0"
   },
   "peerDependencies": {
-    "@blockware/sdk-config": "^0.0.4"
+    "@blockware/sdk-config": "^0.0.10"
   },
   "devDependencies": {
     "@types/express": "^4.17.2",
-    "@blockware/sdk-config": "^0.0.4"
+    "@blockware/sdk-config": "^0.0.10"
   }
 }
