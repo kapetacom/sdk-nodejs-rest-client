@@ -1,4 +1,4 @@
-const Config = require('@blockware/sdk-config');
+const Config = require('@kapeta/sdk-config');
 const Request = require('request');
 
 const SERVICE_TYPE = "rest";
