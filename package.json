@@ -1,6 +1,6 @@
 {
   "name": "@kapeta/sdk-rest-client",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "",
   "main": "index.js",
   "private": false,
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/blockwarecom/sdk-nodejs-rest-client#readme",
   "dependencies": {
-    "request": "2.88.0"
+    "request": "2.88.2"
   },
   "peerDependencies": {
     "@kapeta/sdk-config": "<2"
