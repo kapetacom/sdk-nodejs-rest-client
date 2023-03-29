@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blockwarecom/sdk-nodejs-rest-client.git"
+    "url": "git+https://github.com/kapetacom/sdk-nodejs-rest-client.git"
   },
   "keywords": [
     "kapeta"
@@ -17,9 +17,9 @@
   "author": "Henrik Hofmeister <hh@kapeta.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/blockwarecom/sdk-nodejs-rest-client/issues"
+    "url": "https://github.com/kapetacom/sdk-nodejs-rest-client/issues"
   },
-  "homepage": "https://github.com/blockwarecom/sdk-nodejs-rest-client#readme",
+  "homepage": "https://github.com/kapetacom/sdk-nodejs-rest-client#readme",
   "dependencies": {
     "request": "2.88.2"
   },
