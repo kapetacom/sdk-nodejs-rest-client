@@ -1,19 +1,34 @@
-const Config = require('@kapeta/sdk-config');
-const Request = require('request');
+import Config, { ConfigProvider } from '@kapeta/sdk-config';
+import Request from 'request';
 
-const SERVICE_TYPE = "rest";
+const SERVICE_TYPE = 'rest';
 
-class RestClient {
+export interface RequestArgument {
+    name: string;
+    value: string;
+    transport: string;
+}
+
+interface RequestOptions {
+    headers: { [key: string]: string };
+    body?: any;
+    method: string;
+    url: string;
+}
+
+export class RestClient {
+    private readonly _resourceName: string;
+    private _ready: boolean = false;
+    private _baseUrl: string;
 
     /**
      * Initialise rest client for service.
      *
      * @param {string} resourceName
      */
-    constructor(resourceName) {
+    constructor(resourceName: string) {
         this._resourceName = resourceName;
-        this._ready = false;
-        this._baseUrl = "http://" + resourceName.toLowerCase();
+        this._baseUrl = `http://${resourceName.toLowerCase()}`;
 
         Config.onReady(async (provider) => {
             await this.init(provider);
@@ -26,7 +41,7 @@ class RestClient {
      * @param {ConfigProvider} provider
      * @return {Promise<void>}
      */
-    async init(provider) {
+    async init(provider: ConfigProvider) {
         this._baseUrl = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
         this._ready = true;
 
@@ -44,25 +59,25 @@ class RestClient {
      * @param {RequestArgument[]} requestArguments
      * @return {Promise<Object>}
      */
-    execute(method, path, requestArguments) {
+    execute(method: string, path: string, requestArguments: RequestArgument[]) {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
 
         while (path.startsWith('/')) {
-            path = path.substr(1)
+            path = path.substr(1);
         }
 
-        let url = this._baseUrl + path;
+        const url = this._baseUrl + path;
 
-        const query = [];
-        const opts = {
+        const query: string[] = [];
+        const opts: RequestOptions = {
             method,
             url,
-            headers: {}
+            headers: {},
         };
 
-        requestArguments.forEach(requestArgument => {
+        requestArguments.forEach((requestArgument) => {
             switch (requestArgument.transport) {
                 case 'path':
                     opts.url = opts.url.replace('{' + requestArgument.name + '}', requestArgument.value);
@@ -74,7 +89,9 @@ class RestClient {
                     opts.body = requestArgument.value;
                     break;
                 case 'query':
-                    query.push(encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value));
+                    query.push(
+                        encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
+                    );
                     break;
             }
         });
@@ -84,29 +101,25 @@ class RestClient {
         }
 
         return new Promise((resolve, reject) => {
-            Request(opts, function(err, response, body) {
+            Request(opts, function (err, response, body) {
                 if (err) {
                     reject(err);
                     return;
                 }
 
-                if (response.statusCode > 399 &&
-                    response.statusCode !== 404) {
+                if (response.statusCode > 399 && response.statusCode !== 404) {
                     reject({
                         response,
-                        body
+                        body,
                     });
                     return;
                 }
 
                 resolve({
                     response,
-                    body
+                    body,
                 });
             });
         });
     }
 }
-
-
-module.exports = RestClient;
