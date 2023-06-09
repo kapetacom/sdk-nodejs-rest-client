@@ -1,6 +1,6 @@
 {
     "name": "@kapeta/sdk-rest-client",
-    "version": "0.0.16",
+    "version": "1.0.0",
     "description": "REST client for Kapeta SDK",
     "type": "module",
     "exports": {
