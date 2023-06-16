@@ -9,11 +9,16 @@ export interface RequestArgument {
     transport: string;
 }
 
-interface RequestOptions {
+export interface RequestOptions {
     headers: { [key: string]: string };
     body?: any;
     method: string;
     url: string;
+}
+
+export interface Result {
+    response: Request.Response;
+    body: any;
 }
 
 export class RestClient {
@@ -53,19 +58,15 @@ export class RestClient {
     }
 
     /**
-     *
-     * @param {string} method
-     * @param {string} path
-     * @param {RequestArgument[]} requestArguments
-     * @return {Promise<Object>}
+     * Send request to service.
      */
-    execute(method: string, path: string, requestArguments: RequestArgument[]) {
+    execute(method: string, path: string, requestArguments: RequestArgument[]):Promise<Result> {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
 
         while (path.startsWith('/')) {
-            path = path.substr(1);
+            path = path.substring(1);
         }
 
         const url = this._baseUrl + path;
@@ -100,8 +101,8 @@ export class RestClient {
             opts.url += '?' + query.join('&');
         }
 
-        return new Promise((resolve, reject) => {
-            Request(opts, function (err, response, body) {
+        return new Promise<Result>((resolve, reject) => {
+            Request(opts, function (err:Error, response:Request.Response, body:any) {
                 if (err) {
                     reject(err);
                     return;
@@ -113,6 +114,24 @@ export class RestClient {
                         body,
                     });
                     return;
+                }
+
+                if (response.statusCode === 404) {
+                    resolve({
+                        response,
+                        body: null,
+                    });
+                    return;
+                }
+
+                if (typeof body === 'string' &&
+                    response.headers['content-type'] &&
+                    response.headers['content-type']?.startsWith('application/json')) {
+                    try {
+                        body = JSON.parse(body);
+                    } catch (e) {
+                        // Ignore
+                    }
                 }
 
                 resolve({
