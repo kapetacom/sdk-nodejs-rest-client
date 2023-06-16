@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.2...v1.0.3) (2023-06-16)
+
+
+### Bug Fixes
+
+* Added types and JSON parsing to client ([081a4d9](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/081a4d9e5b9b2f0d9b14b9459e9c03d5a17e5544))
+
 ## [1.0.2](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.1...v1.0.2) (2023-06-11)
 
 
