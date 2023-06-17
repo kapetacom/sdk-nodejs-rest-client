@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.3...v1.0.4) (2023-06-17)
+
+
+### Bug Fixes
+
+* Handle complex body arguments ([#3](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/3)) ([b48c21a](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/b48c21a9a3dd453e0ea18983d67c5ee66e6b8eb8))
+
 ## [1.0.3](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.2...v1.0.3) (2023-06-16)
 
 
