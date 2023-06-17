@@ -5,7 +5,7 @@ const SERVICE_TYPE = 'rest';
 
 export interface RequestArgument {
     name: string;
-    value: string;
+    value: any;
     transport: string;
 }
 
@@ -79,7 +79,7 @@ export class RestClient {
         };
 
         requestArguments.forEach((requestArgument) => {
-            switch (requestArgument.transport) {
+            switch (requestArgument.transport?.toLowerCase()) {
                 case 'path':
                     opts.url = opts.url.replace('{' + requestArgument.name + '}', requestArgument.value);
                     break;
@@ -87,13 +87,18 @@ export class RestClient {
                     opts.headers[requestArgument.name] = requestArgument.value;
                     break;
                 case 'body':
-                    opts.body = requestArgument.value;
+                    if (!opts.headers['content-type']) {
+                        opts.headers['content-type'] = 'application/json';
+                    }
+                    opts.body = JSON.stringify(requestArgument.value);
                     break;
                 case 'query':
                     query.push(
                         encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
                     );
                     break;
+                default:
+                    throw new Error('Unknown argument transport: ' + requestArgument.transport);
             }
         });
 
