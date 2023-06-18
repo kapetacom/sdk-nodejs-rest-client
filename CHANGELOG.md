@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.4...v1.1.0) (2023-06-18)
+
+
+### Features
+
+* Token change to trigger version ([213fe77](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/213fe7782d00610c171daca98d210fb7f71b171b))
+
 ## [1.0.4](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.3...v1.0.4) (2023-06-17)
 
 
