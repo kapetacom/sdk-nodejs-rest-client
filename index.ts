@@ -1,5 +1,5 @@
 import Config, { ConfigProvider } from '@kapeta/sdk-config';
-import Request from 'request';
+import Request, {Response} from 'request';
 
 const SERVICE_TYPE = 'rest';
 
@@ -19,6 +19,20 @@ export interface RequestOptions {
 export interface Result {
     response: Request.Response;
     body: any;
+}
+
+
+export class RestError extends Error {
+    public readonly response: Response;
+    public readonly statusCode: number;
+
+    constructor(error:string, response: Response) {
+        super(error);
+        this.response = response;
+        this.statusCode = response.statusCode;
+
+    }
+
 }
 
 export class RestClient {
@@ -60,7 +74,7 @@ export class RestClient {
     /**
      * Send request to service.
      */
-    execute(method: string, path: string, requestArguments: RequestArgument[]):Promise<Result> {
+    execute(method: string, path: string, requestArguments: RequestArgument[]):Promise<any> {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
@@ -106,26 +120,10 @@ export class RestClient {
             opts.url += '?' + query.join('&');
         }
 
-        return new Promise<Result>((resolve, reject) => {
-            Request(opts, function (err:Error, response:Request.Response, body:any) {
+        return new Promise<any>((resolve, reject) => {
+            Request(opts, function (err:Error, response:Response, body:any) {
                 if (err) {
                     reject(err);
-                    return;
-                }
-
-                if (response.statusCode > 399 && response.statusCode !== 404) {
-                    reject({
-                        response,
-                        body,
-                    });
-                    return;
-                }
-
-                if (response.statusCode === 404) {
-                    resolve({
-                        response,
-                        body: null,
-                    });
                     return;
                 }
 
@@ -139,10 +137,17 @@ export class RestClient {
                     }
                 }
 
-                resolve({
-                    response,
-                    body,
-                });
+                if (response.statusCode > 399 && response.statusCode !== 404) {
+                    reject(new RestError(body.error || 'Unknown error', response));
+                    return;
+                }
+
+                if (response.statusCode === 404) {
+                    resolve(null);
+                    return;
+                }
+
+                resolve(body);
             });
         });
     }
