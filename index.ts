@@ -1,5 +1,5 @@
 import Config, { ConfigProvider } from '@kapeta/sdk-config';
-import Request, {Response} from 'request';
+import Request, { Response } from 'request';
 
 const SERVICE_TYPE = 'rest';
 
@@ -21,18 +21,15 @@ export interface Result {
     body: any;
 }
 
-
 export class RestError extends Error {
     public readonly response: Response;
     public readonly statusCode: number;
 
-    constructor(error:string, response: Response) {
+    constructor(error: string, response: Response) {
         super(error);
         this.response = response;
         this.statusCode = response.statusCode;
-
     }
-
 }
 
 export class RestClient {
@@ -74,7 +71,7 @@ export class RestClient {
     /**
      * Send request to service.
      */
-    execute(method: string, path: string, requestArguments: RequestArgument[]):Promise<any> {
+    execute(method: string, path: string, requestArguments: RequestArgument[]): Promise<any> {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
@@ -121,15 +118,17 @@ export class RestClient {
         }
 
         return new Promise<any>((resolve, reject) => {
-            Request(opts, function (err:Error, response:Response, body:any) {
+            Request(opts, function (err: Error, response: Response, body: any) {
                 if (err) {
                     reject(err);
                     return;
                 }
 
-                if (typeof body === 'string' &&
+                if (
+                    typeof body === 'string' &&
                     response.headers['content-type'] &&
-                    response.headers['content-type']?.startsWith('application/json')) {
+                    response.headers['content-type']?.startsWith('application/json')
+                ) {
                     try {
                         body = JSON.parse(body);
                     } catch (e) {
@@ -137,13 +136,8 @@ export class RestClient {
                     }
                 }
 
-                if (response.statusCode > 399 && response.statusCode !== 404) {
+                if (response.statusCode > 399) {
                     reject(new RestError(body.error || 'Unknown error', response));
-                    return;
-                }
-
-                if (response.statusCode === 404) {
-                    resolve(null);
                     return;
                 }
 
