@@ -1,18 +1,38 @@
 import Config, { ConfigProvider } from '@kapeta/sdk-config';
-import Request, {Response} from 'request';
+import Request, { Response } from 'request';
 
 const SERVICE_TYPE = 'rest';
+
+type RequestArgumentTransport = 'path' | 'header' | 'body' | 'query' | 'PATH' | 'HEADER' | 'BODY' | 'QUERY';
+type RequestMethod =
+    | 'GET'
+    | 'POST'
+    | 'DELETE'
+    | 'PATCH'
+    | 'PUT'
+    | 'OPTIONS'
+    | 'HEAD'
+    | 'TRACE'
+    | 'CONNECT'
+    | 'LINK'
+    | 'UNLINK'
+    | 'COPY'
+    | 'PURGE'
+    | 'LOCK'
+    | 'UNLOCK'
+    | 'PROPFIND'
+    | 'VIEW';
 
 export interface RequestArgument {
     name: string;
     value: any;
-    transport: string;
+    transport: RequestArgumentTransport;
 }
 
 export interface RequestOptions {
     headers: { [key: string]: string };
     body?: any;
-    method: string;
+    method: RequestMethod;
     url: string;
 }
 
@@ -21,18 +41,15 @@ export interface Result {
     body: any;
 }
 
-
 export class RestError extends Error {
     public readonly response: Response;
     public readonly statusCode: number;
 
-    constructor(error:string, response: Response) {
+    constructor(error: string, response: Response) {
         super(error);
         this.response = response;
         this.statusCode = response.statusCode;
-
     }
-
 }
 
 export class RestClient {
@@ -72,9 +89,14 @@ export class RestClient {
     }
 
     /**
-     * Send request to service.
+     * Executes a request to the specified path using the specified method.
+     *
+     * @param {RequestMethod} method - The HTTP request method to use for the request.
+     * @param {string} path - The path of the resource to request.
+     * @param {RequestArgument[]} requestArguments - The array of request arguments.
+     * @returns {Promise<ReturnType | null>} The result of the request, or null if the response status is 404.
      */
-    execute(method: string, path: string, requestArguments: RequestArgument[]):Promise<any> {
+    execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
@@ -93,7 +115,8 @@ export class RestClient {
         };
 
         requestArguments.forEach((requestArgument) => {
-            switch (requestArgument.transport?.toLowerCase()) {
+            const transport = requestArgument.transport?.toLowerCase() as Lowercase<RequestArgumentTransport>;
+            switch (transport) {
                 case 'path':
                     opts.url = opts.url.replace('{' + requestArgument.name + '}', requestArgument.value);
                     break;
@@ -112,6 +135,7 @@ export class RestClient {
                     );
                     break;
                 default:
+                    transport satisfies never;
                     throw new Error('Unknown argument transport: ' + requestArgument.transport);
             }
         });
@@ -120,16 +144,18 @@ export class RestClient {
             opts.url += '?' + query.join('&');
         }
 
-        return new Promise<any>((resolve, reject) => {
-            Request(opts, function (err:Error, response:Response, body:any) {
+        return new Promise<ReturnType | null>((resolve, reject) => {
+            Request(opts, function (err: Error, response: Response, body: any) {
                 if (err) {
                     reject(err);
                     return;
                 }
 
-                if (typeof body === 'string' &&
+                if (
+                    typeof body === 'string' &&
                     response.headers['content-type'] &&
-                    response.headers['content-type']?.startsWith('application/json')) {
+                    response.headers['content-type']?.startsWith('application/json')
+                ) {
                     try {
                         body = JSON.parse(body);
                     } catch (e) {
