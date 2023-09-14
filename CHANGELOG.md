@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.0...v1.1.1) (2023-09-14)
+
+
+### Bug Fixes
+
+* Change execute into a generic function ([8f05dec](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/8f05decc0ec1f22d36912b4c018a2cf973bed076))
+
 # [1.1.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.0.4...v1.1.0) (2023-06-18)
 
 
