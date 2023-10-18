@@ -52,6 +52,13 @@ export class RestError extends Error {
     }
 }
 
+const JSONStringifyReplacer = function(this:any, key:string, value:any) {
+    if (this[key] instanceof Date) {
+        return this[key].getTime();
+    }
+    return value;
+}
+
 export class RestClient {
     private readonly _resourceName: string;
     private _ready: boolean = false;
@@ -127,7 +134,7 @@ export class RestClient {
                     if (!opts.headers['content-type']) {
                         opts.headers['content-type'] = 'application/json';
                     }
-                    opts.body = JSON.stringify(requestArgument.value);
+                    opts.body = JSON.stringify(requestArgument.value, JSONStringifyReplacer);
                     break;
                 case 'query':
                     query.push(
