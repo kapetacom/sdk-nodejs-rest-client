@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.1...v1.1.2) (2023-10-18)
+
+
+### Bug Fixes
+
+* Change dates to numbers when serializing ([#6](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/6)) ([c321c7f](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/c321c7f179ed6800fb726d60f1218ea566d261cb))
+
 ## [1.1.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.0...v1.1.1) (2023-09-14)
 
 
