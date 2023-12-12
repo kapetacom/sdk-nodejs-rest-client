@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.2...v2.0.0) (2023-12-12)
+
+
+### Features
+
+* Refactored to seperate request from client ([#8](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/8)) ([029f573](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/029f573a7e8d76350987deb77468c711d50ef744))
+
+
+### BREAKING CHANGES
+
+* Refactoring to make it possible to interact with request
+
 ## [1.1.2](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.1...v1.1.2) (2023-10-18)
 
 
