@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v2.0.0...v2.0.1) (2023-12-13)
+
+
+### Bug Fixes
+
+* Bumped deps to ^2 also ([7b978a5](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/7b978a5dcaa349996b67d98836ba67c5c8dade4f))
+
 # [2.0.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v1.1.2...v2.0.0) (2023-12-12)
 
 
