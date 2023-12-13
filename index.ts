@@ -226,7 +226,11 @@ export class RestClient {
      * Called automatically during startup sequence.
      */
     private async init(provider: ConfigProvider) {
-        this._baseUrl = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
+        const service = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
+        if (!service) {
+            throw new Error(`Service ${this._resourceName} not found`);
+        }
+        this._baseUrl = service;
         this._ready = true;
 
         if (!this._baseUrl.endsWith('/')) {
