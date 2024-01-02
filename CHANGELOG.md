@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v2.0.1...v3.0.0) (2024-01-02)
+
+
+### Features
+
+* Prefix all internal methods with $ to avoid name clashes ([#9](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/9)) ([0f9d6d6](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/0f9d6d6e215cada5943b8a78b48594a287554857))
+
+
+### BREAKING CHANGES
+
+* We generate methods names which can be named anything
+
 ## [2.0.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v2.0.0...v2.0.1) (2023-12-13)
 
 
