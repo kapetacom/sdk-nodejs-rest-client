@@ -217,7 +217,7 @@ export class RestClient {
         this._baseUrl = `http://${resourceName.toLowerCase()}`;
 
         Config.onReady(async (provider) => {
-            await this.init(provider);
+            await this.$init(provider);
         });
     }
 
@@ -225,7 +225,7 @@ export class RestClient {
     /**
      * Called automatically during startup sequence.
      */
-    private async init(provider: ConfigProvider) {
+    private async $init(provider: ConfigProvider) {
         const service = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
         if (!service) {
             throw new Error(`Service ${this._resourceName} not found`);
@@ -240,11 +240,11 @@ export class RestClient {
         console.log('REST client ready for %s --> %s', this._resourceName, this._baseUrl);
     }
 
-    public get baseUrl() {
+    public get $baseUrl() {
         return this._baseUrl;
     }
 
-    public withHeader(name: string, value: string|undefined) {
+    public $withHeader(name: string, value: string|undefined) {
         if (!value) {
             delete this._fixedHeaders[name];
             return this;
@@ -253,18 +253,18 @@ export class RestClient {
         return this;
     }
 
-    public withContentType(contentType: string|undefined) {
-        return this.withHeader('Content-Type', contentType);
+    public $withContentType(contentType: string|undefined) {
+        return this.$withHeader('Content-Type', contentType);
     }
 
-    public withAuthorization(auth: string|undefined) {
-        return this.withHeader('Authorization', auth);
+    public $withAuthorization(auth: string|undefined) {
+        return this.$withHeader('Authorization', auth);
     }
-    public withBearerToken(token: string|undefined) {
-        return this.withAuthorization(`Bearer ${token}`);
+    public $withBearerToken(token: string|undefined) {
+        return this.$withAuthorization(`Bearer ${token}`);
     }
 
-    public create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
+    public $create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
         if (!this._ready) {
             throw new Error('Client not ready yet');
         }
@@ -275,20 +275,20 @@ export class RestClient {
             request.withHeader(key, this._fixedHeaders[key]);
         });
 
-        this.afterCreate(request);
+        this.$afterCreate(request);
 
         return request;
     }
 
-    protected afterCreate(request: RestClientRequest):void {
+    protected $afterCreate(request: RestClientRequest):void {
         // Override this method to add additional headers or similar to all requests
     }
 
     /**
      * Executes a request to the specified path using the specified method.
      */
-    public execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
-        const request = this.create<ReturnType>(method, path, requestArguments);
+    public $execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
+        const request = this.$create<ReturnType>(method, path, requestArguments);
 
         return request.call()
     }
