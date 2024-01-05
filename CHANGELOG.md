@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.0.0...v3.0.1) (2024-01-05)
+
+
+### Bug Fixes
+
+* Do not send values that are null or undefined ([#10](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/10)) ([742bac0](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/742bac0cdedc869b414e3edf57aa65b0487db63a))
+
 # [3.0.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v2.0.1...v3.0.0) (2024-01-02)
 
 
