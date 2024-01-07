@@ -164,6 +164,7 @@ export class RestClientRequest<ReturnType = any> {
                 body = JSON.parse(body);
             } catch (e) {
                 // Ignore
+                console.warn('Failed to parse JSON response', e);
             }
         }
 
@@ -175,7 +176,7 @@ export class RestClientRequest<ReturnType = any> {
             return null;
         }
 
-        return response.json() as Promise<ReturnType>;
+        return body as ReturnType;
     }
 
     protected createOptions() {
