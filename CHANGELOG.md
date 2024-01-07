@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.0...v3.1.1) (2024-01-07)
+
+
+### Bug Fixes
+
+* Do not attempt to consume response body twice ([6b86bd0](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/6b86bd03f5ad3c0a084975f83f8fa7c2966ca5ca))
+
 # [3.1.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.0.1...v3.1.0) (2024-01-07)
 
 
