@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.0.1...v3.1.0) (2024-01-07)
+
+
+### Features
+
+* Use fetch, add documentation and made autoInit optional ([#11](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/11)) ([1d6ffb9](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/1d6ffb92bc1cecf414737fdf2d37cca996612727))
+
 ## [3.0.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.0.0...v3.0.1) (2024-01-05)
 
 
