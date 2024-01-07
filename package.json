@@ -73,9 +73,6 @@
             ]
         ]
     },
-    "dependencies": {
-        "request": "2.88.2"
-    },
     "peerDependencies": {
         "@kapeta/sdk-config": "^2"
     },

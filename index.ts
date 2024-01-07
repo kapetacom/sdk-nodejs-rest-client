@@ -4,7 +4,6 @@
  */
 
 import Config, { ConfigProvider } from '@kapeta/sdk-config';
-import Request, { Response } from 'request';
 
 const SERVICE_TYPE = 'rest';
 
@@ -42,7 +41,7 @@ export interface RequestOptions {
 }
 
 export interface Result {
-    response: Request.Response;
+    response: Response;
     body: any;
 }
 
@@ -53,7 +52,7 @@ export class RestClientError extends Error {
     constructor(error: string, response: Response) {
         super(error);
         this.response = response;
-        this.statusCode = response.statusCode;
+        this.statusCode = response.status;
     }
 }
 
@@ -70,6 +69,7 @@ export class RestClientRequest<ReturnType = any> {
     private readonly _method: RequestMethod;
     private readonly _requestArguments: RequestArgument[];
     private readonly _headers: { [key: string]: string } = {};
+    private timeout: number = RestClient.getDefaultTimeout();
 
     constructor(baseUrl: string, method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
         while (path.startsWith('/')) {
@@ -101,18 +101,17 @@ export class RestClientRequest<ReturnType = any> {
     }
 
     public hasHeader(name: string) {
-        return this._headers[name] !== undefined;
+        return this._headers[name.toLowerCase()] !== undefined;
     }
 
     public withHeader(name: string, value: string|undefined) {
         if (!value) {
-            delete this._headers[name];
+            delete this._headers[name.toLowerCase()];
             return this;
         }
-        this._headers[name] = value;
+        this._headers[name.toLowerCase()] = value;
         return this;
     }
-
 
     public withAuthorization(auth: string|undefined) {
         return this.withHeader('Authorization', auth);
@@ -125,40 +124,58 @@ export class RestClientRequest<ReturnType = any> {
         return this.withHeader('Content-Type', contentType);
     }
 
-    public call():Promise<ReturnType|null> {
+    public withTimeout(timeout: number) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    public async call():Promise<ReturnType|null> {
         const opts = this.createOptions();
-        return new Promise<ReturnType | null>((resolve, reject) => {
-            Request(opts, function (err: Error, response: Response, body: any) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-
-                if (
-                    typeof body === 'string' &&
-                    response.headers['content-type'] &&
-                    response.headers['content-type']?.startsWith('application/json')
-                ) {
-                    try {
-                        body = JSON.parse(body);
-                    } catch (e) {
-                        // Ignore
-                    }
-                }
-
-                if (response.statusCode > 399 && response.statusCode !== 404) {
-                    reject(new RestClientError(body.error || 'Unknown error', response));
-                    return;
-                }
-
-                if (response.statusCode === 404) {
-                    resolve(null);
-                    return;
-                }
-
-                resolve(body);
-            });
+        const abortController = new AbortController();
+        const response: Response = await fetch(opts.url, {
+            method: opts.method,
+            headers: opts.headers,
+            body: opts.body,
+            signal: abortController.signal,
         });
+
+        let abortTimeout:NodeJS.Timeout|undefined = undefined;
+        if (this.timeout > 0) {
+            abortTimeout = setTimeout(() => {
+                abortController.abort();
+            }, this.timeout);
+        }
+
+        let body: any;
+        try {
+            body = await response.text();
+        } finally {
+            if (abortTimeout) {
+                clearTimeout(abortTimeout);
+            }
+        }
+
+        if (
+            typeof body === 'string' &&
+            response.headers.has('content-type') &&
+            response.headers.get('content-type')?.startsWith('application/json')
+        ) {
+            try {
+                body = JSON.parse(body);
+            } catch (e) {
+                // Ignore
+            }
+        }
+
+        if (response.status > 399 && response.status !== 404) {
+            throw new RestClientError(body.error || 'Unknown error', response);
+        }
+
+        if (response.status === 404) {
+            return null;
+        }
+
+        return response.json() as Promise<ReturnType>;
     }
 
     protected createOptions() {
@@ -174,7 +191,10 @@ export class RestClientRequest<ReturnType = any> {
             const valueIsEmpty = requestArgument.value === undefined || requestArgument.value === null;
             switch (transport) {
                 case 'path':
-                    opts.url = opts.url.replace('{' + requestArgument.name + '}', valueIsEmpty ? '' : requestArgument.value);
+                    if (valueIsEmpty) {
+                        throw new Error(`Path argument ${requestArgument.name} must not be empty`);
+                    }
+                    opts.url = opts.url.replace('{' + requestArgument.name + '}', requestArgument.value);
                     break;
                 case 'header':
                     if (!valueIsEmpty) {
@@ -209,52 +229,89 @@ export class RestClientRequest<ReturnType = any> {
 }
 
 export class RestClient {
-    private readonly _resourceName: string;
-    private _ready: boolean = false;
-    private _baseUrl: string;
-    private _fixedHeaders: { [key: string]: string } = {};
+    private static defaultTimeout: number = 30000;
+    private static defaultHeaders: { [key: string]: string } = {};
+
+    public static setDefaultTimeout(timeout: number) {
+        this.defaultTimeout = timeout;
+    }
+
+    public static getDefaultTimeout() {
+        return this.defaultTimeout;
+    }
+
+    public static setDefaultHeader(name: string, value: string|undefined) {
+        if (!value) {
+            delete this.defaultHeaders[name.toLowerCase()];
+            return;
+        }
+        this.defaultHeaders[name.toLowerCase()] = value;
+    }
+
+    private readonly resourceName: string;
+    private ready: boolean = false;
+    private baseUrl: string;
+    private fixedHeaders: { [key: string]: string } = {};
+    private timeout: number = RestClient.defaultTimeout;
 
     /**
      * Initialise rest client for service.
+     *
+     * @param resourceName Name of the service to connect to.
+     * @param autoInit If true, the client will automatically initialise itself when the config provider is ready.
      */
-    public constructor(resourceName: string) {
-        this._resourceName = resourceName;
-        this._baseUrl = `http://${resourceName.toLowerCase()}`;
+    public constructor(resourceName: string, autoInit:boolean = true) {
+        this.resourceName = resourceName;
+        this.baseUrl = `http://${resourceName.toLowerCase()}`;
 
-        Config.onReady(async (provider) => {
-            await this.$init(provider);
-        });
+        if (autoInit) {
+            Config.onReady(async (provider) => {
+                await this.$init(provider);
+            });
+        }
     }
 
+    public async $withConfigProvider(config:ConfigProvider) {
+        await this.$init(config);
+        return this;
+    }
+
+    public $withTimeout(timeout: number) {
+        this.timeout = timeout;
+        return this;
+    }
 
     /**
      * Called automatically during startup sequence.
      */
     private async $init(provider: ConfigProvider) {
-        const service = await provider.getServiceAddress(this._resourceName, SERVICE_TYPE);
+        if (this.ready) {
+            throw new Error('Client already initialised');
+        }
+        const service = await provider.getServiceAddress(this.resourceName, SERVICE_TYPE);
         if (!service) {
-            throw new Error(`Service ${this._resourceName} not found`);
+            throw new Error(`Service ${this.resourceName} not found`);
         }
-        this._baseUrl = service;
-        this._ready = true;
+        this.baseUrl = service;
+        this.ready = true;
 
-        if (!this._baseUrl.endsWith('/')) {
-            this._baseUrl += '/';
+        if (!this.baseUrl.endsWith('/')) {
+            this.baseUrl += '/';
         }
 
-        console.log('REST client ready for %s --> %s', this._resourceName, this._baseUrl);
+        console.log('REST client ready for %s --> %s', this.resourceName, this.baseUrl);
     }
 
     public get $baseUrl() {
-        return this._baseUrl;
+        return this.baseUrl;
     }
 
     public $withHeader(name: string, value: string|undefined) {
         if (!value) {
-            delete this._fixedHeaders[name];
+            delete this.fixedHeaders[name.toLowerCase()];
             return this;
         }
-        this._fixedHeaders[name] = value;
+        this.fixedHeaders[name.toLowerCase()] = value;
         return this;
     }
 
@@ -270,14 +327,19 @@ export class RestClient {
     }
 
     public $create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
-        if (!this._ready) {
+        if (!this.ready) {
             throw new Error('Client not ready yet');
         }
 
-        const request = new RestClientRequest<ReturnType>(this._baseUrl, method, path, requestArguments);
+        const request = new RestClientRequest<ReturnType>(this.baseUrl, method, path, requestArguments);
+        request.withTimeout(this.timeout);
 
-        Object.keys(this._fixedHeaders).forEach((key) => {
-            request.withHeader(key, this._fixedHeaders[key]);
+        Object.entries(RestClient.defaultHeaders).forEach(([key, value]) => {
+            request.withHeader(key, value);
+        });
+
+        Object.entries(this.fixedHeaders).forEach(([key, value]) => {
+            request.withHeader(key, value);
         });
 
         this.$afterCreate(request);
