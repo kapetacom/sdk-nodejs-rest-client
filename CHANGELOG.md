@@ -1,3 +1,11 @@
+## [3.1.2](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.1...v3.1.2) (2024-01-16)
+
+
+### Bug Fixes
+
+* Format codebase ([bc89a2d](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/bc89a2d3726c12e990f7ea04876f741be1f7f0cf))
+* Handle Set and Map in query transport ([3c1f769](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/3c1f76998fdf9e19cc0413d2494a870c5a156451))
+
 ## [3.1.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.0...v3.1.1) (2024-01-07)
 
 
