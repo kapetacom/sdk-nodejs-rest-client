@@ -56,12 +56,12 @@ export class RestClientError extends Error {
     }
 }
 
-const JSONStringifyReplacer = function(this:any, key:string, value:any) {
+const JSONStringifyReplacer = function (this: any, key: string, value: any) {
     if (this[key] instanceof Date) {
         return this[key].getTime();
     }
     return value;
-}
+};
 
 export class RestClientRequest<ReturnType = any> {
     private readonly _baseUrl: string;
@@ -104,7 +104,7 @@ export class RestClientRequest<ReturnType = any> {
         return this._headers[name.toLowerCase()] !== undefined;
     }
 
-    public withHeader(name: string, value: string|undefined) {
+    public withHeader(name: string, value: string | undefined) {
         if (!value) {
             delete this._headers[name.toLowerCase()];
             return this;
@@ -113,14 +113,14 @@ export class RestClientRequest<ReturnType = any> {
         return this;
     }
 
-    public withAuthorization(auth: string|undefined) {
+    public withAuthorization(auth: string | undefined) {
         return this.withHeader('Authorization', auth);
     }
-    public withBearerToken(token: string|undefined) {
+    public withBearerToken(token: string | undefined) {
         return this.withAuthorization(`Bearer ${token}`);
     }
 
-    public withContentType(contentType: string|undefined) {
+    public withContentType(contentType: string | undefined) {
         return this.withHeader('Content-Type', contentType);
     }
 
@@ -129,7 +129,7 @@ export class RestClientRequest<ReturnType = any> {
         return this;
     }
 
-    public async call():Promise<ReturnType|null> {
+    public async call(): Promise<ReturnType | null> {
         const opts = this.createOptions();
         const abortController = new AbortController();
         const response: Response = await fetch(opts.url, {
@@ -139,7 +139,7 @@ export class RestClientRequest<ReturnType = any> {
             signal: abortController.signal,
         });
 
-        let abortTimeout:NodeJS.Timeout|undefined = undefined;
+        let abortTimeout: NodeJS.Timeout | undefined = undefined;
         if (this.timeout > 0) {
             abortTimeout = setTimeout(() => {
                 abortController.abort();
@@ -184,7 +184,7 @@ export class RestClientRequest<ReturnType = any> {
         const opts: RequestOptions = {
             method: this.method,
             url: this.url,
-            headers: {...this._headers},
+            headers: { ...this._headers },
         };
 
         this._requestArguments.forEach((requestArgument) => {
@@ -206,13 +206,32 @@ export class RestClientRequest<ReturnType = any> {
                     if (!opts.headers['content-type']) {
                         opts.headers['content-type'] = 'application/json';
                     }
-                    opts.body = JSON.stringify(requestArgument.value === undefined ? null : requestArgument.value, JSONStringifyReplacer);
+                    opts.body = JSON.stringify(
+                        requestArgument.value === undefined ? null : requestArgument.value,
+                        JSONStringifyReplacer
+                    );
                     break;
                 case 'query':
                     if (!valueIsEmpty) {
-                        query.push(
-                            encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(requestArgument.value)
-                        );
+                        if (requestArgument.value instanceof Set) {
+                            requestArgument.value.forEach((value) => {
+                                query.push(encodeURIComponent(requestArgument.name) + '=' + encodeURIComponent(value));
+                            });
+                        } else if (requestArgument.value instanceof Map) {
+                            requestArgument.value.forEach((value, key) => {
+                                query.push(
+                                    encodeURIComponent(requestArgument.name) +
+                                        '=' +
+                                        encodeURIComponent(key + '=' + value)
+                                );
+                            });
+                        } else {
+                            query.push(
+                                encodeURIComponent(requestArgument.name) +
+                                    '=' +
+                                    encodeURIComponent(requestArgument.value)
+                            );
+                        }
                     }
                     break;
                 default:
@@ -226,7 +245,6 @@ export class RestClientRequest<ReturnType = any> {
         }
         return opts;
     }
-
 }
 
 export class RestClient {
@@ -241,7 +259,7 @@ export class RestClient {
         return this.defaultTimeout;
     }
 
-    public static setDefaultHeader(name: string, value: string|undefined) {
+    public static setDefaultHeader(name: string, value: string | undefined) {
         if (!value) {
             delete this.defaultHeaders[name.toLowerCase()];
             return;
@@ -261,7 +279,7 @@ export class RestClient {
      * @param resourceName Name of the service to connect to.
      * @param autoInit If true, the client will automatically initialise itself when the config provider is ready.
      */
-    public constructor(resourceName: string, autoInit:boolean = true) {
+    public constructor(resourceName: string, autoInit: boolean = true) {
         this.resourceName = resourceName;
         this.baseUrl = `http://${resourceName.toLowerCase()}`;
 
@@ -272,7 +290,7 @@ export class RestClient {
         }
     }
 
-    public async $withConfigProvider(config:ConfigProvider) {
+    public async $withConfigProvider(config: ConfigProvider) {
         await this.$init(config);
         return this;
     }
@@ -307,7 +325,7 @@ export class RestClient {
         return this.baseUrl;
     }
 
-    public $withHeader(name: string, value: string|undefined) {
+    public $withHeader(name: string, value: string | undefined) {
         if (!value) {
             delete this.fixedHeaders[name.toLowerCase()];
             return this;
@@ -316,18 +334,22 @@ export class RestClient {
         return this;
     }
 
-    public $withContentType(contentType: string|undefined) {
+    public $withContentType(contentType: string | undefined) {
         return this.$withHeader('Content-Type', contentType);
     }
 
-    public $withAuthorization(auth: string|undefined) {
+    public $withAuthorization(auth: string | undefined) {
         return this.$withHeader('Authorization', auth);
     }
-    public $withBearerToken(token: string|undefined) {
+    public $withBearerToken(token: string | undefined) {
         return this.$withAuthorization(`Bearer ${token}`);
     }
 
-    public $create<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]):RestClientRequest<ReturnType> {
+    public $create<ReturnType = any>(
+        method: RequestMethod,
+        path: string,
+        requestArguments: RequestArgument[]
+    ): RestClientRequest<ReturnType> {
         if (!this.ready) {
             throw new Error('Client not ready yet');
         }
@@ -348,7 +370,7 @@ export class RestClient {
         return request;
     }
 
-    protected $afterCreate(request: RestClientRequest):void {
+    protected $afterCreate(request: RestClientRequest): void {
         // Override this method to add additional headers or similar to all requests
     }
 
@@ -358,6 +380,6 @@ export class RestClient {
     public $execute<ReturnType = any>(method: RequestMethod, path: string, requestArguments: RequestArgument[]) {
         const request = this.$create<ReturnType>(method, path, requestArguments);
 
-        return request.call()
+        return request.call();
     }
 }
