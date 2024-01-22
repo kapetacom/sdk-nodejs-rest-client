@@ -87,6 +87,6 @@
         "prettier": "^2.8.8"
     },
     "dependencies": {
-        "@kapeta/sdk-rest": "^1.0.0"
+        "@kapeta/sdk-rest": "^1.0.1"
     }
 }
