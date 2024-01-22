@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.2...v3.2.0) (2024-01-22)
+
+
+### Features
+
+* Use shared lib for rest clients ([#13](https://github.com/kapetacom/sdk-nodejs-rest-client/issues/13)) ([2dbdb1e](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/2dbdb1e840e24dc749c45088b7aeeee39e09a1da))
+
 ## [3.1.2](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.1...v3.1.2) (2024-01-16)
 
 
