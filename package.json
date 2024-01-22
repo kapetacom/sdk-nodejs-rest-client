@@ -77,13 +77,16 @@
         "@kapeta/sdk-config": "^2"
     },
     "devDependencies": {
+        "@kapeta/eslint-config": "^0.6.0",
+        "@kapeta/prettier-config": "^0.6.1",
         "@kapeta/sdk-config": "^2",
         "@types/express": "^4.17.2",
         "@types/request": "^2.48.8",
-        "@kapeta/eslint-config": "^0.6.0",
-        "@kapeta/prettier-config": "^0.6.1",
         "eslint": "^8.42.0",
         "eslint-config-prettier": "^8.8.0",
         "prettier": "^2.8.8"
+    },
+    "dependencies": {
+        "@kapeta/sdk-rest": "^1.0.1"
     }
 }
