@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.2.0...v3.2.1) (2024-02-02)
+
+
+### Bug Fixes
+
+* bump sdk-rest ([7b7121a](https://github.com/kapetacom/sdk-nodejs-rest-client/commit/7b7121a9c0ac9b39c21d3ceb38f05c8b4d1d0b58))
+
 # [3.2.0](https://github.com/kapetacom/sdk-nodejs-rest-client/compare/v3.1.2...v3.2.0) (2024-01-22)
 
 
