@@ -9,7 +9,6 @@ import { BaseRestClient } from '@kapeta/sdk-rest';
 const SERVICE_TYPE = 'rest';
 
 export class RestClient extends BaseRestClient {
-
     private readonly resourceName: string;
     private ready: boolean = false;
 
@@ -20,7 +19,7 @@ export class RestClient extends BaseRestClient {
      * @param autoInit If true, the client will automatically initialise itself when the config provider is ready.
      */
 
-    public constructor(resourceName: string, autoInit:boolean = true) {
+    public constructor(resourceName: string, autoInit: boolean = true) {
         super(fetch, `http://${resourceName.toLowerCase()}`);
         this.resourceName = resourceName;
 
@@ -36,6 +35,15 @@ export class RestClient extends BaseRestClient {
         return this;
     }
 
+    public $withBaseUrl(baseUrl: string) {
+        this.$baseUrl = baseUrl;
+
+        if (!this.$baseUrl.endsWith('/')) {
+            this.$baseUrl += '/';
+        }
+
+        return this;
+    }
 
     /**
      * Called automatically during startup sequence.
@@ -57,5 +65,4 @@ export class RestClient extends BaseRestClient {
 
         console.log('REST client ready for %s --> %s', this.resourceName, this.$baseUrl);
     }
-
 }
